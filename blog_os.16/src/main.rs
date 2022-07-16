@@ -31,13 +31,11 @@ pub extern "C" fn _start() -> ! {
 
     blog_os::init(); // new
 
-    #[allow(unconditional_recursion)]
-    fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
-    }
+    // trigger a page fault
+    unsafe {
+        *(0xdeadbeef as *mut u64) = 42;
+    };
 
-    // trigger a stack overflow
-    stack_overflow();
     // as before
     #[cfg(test)]
     test_main();
