@@ -43,24 +43,16 @@ pub extern "C" fn _start() -> ! {
     test_main();
 
     println!("It did not crash!"); // Timer Interrupts, no handler, then double fault
-
-    // loop {
-    //     use blog_os::print;
-    //     print!("-"); // deadlock at WRITER (Timer Interrupts use print too)
-    // }
-
-    blog_os::hlt_loop();
+    loop {}
 }
 
 #[cfg(not(test))] // new attribute
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    // loop {
+    loop {
         
-    // }
-
-    blog_os::hlt_loop();
+    }
 }
 
 // our panic handler in test mode
