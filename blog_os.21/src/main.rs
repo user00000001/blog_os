@@ -29,29 +29,7 @@ where
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
-    blog_os::init();
-
-    use x86_64::registers::control::Cr3;
-
-    let (level_4_page_table, _) = Cr3::read();
-    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
-
-    // Note: The actual address might be different for you. Use the address that
-    // your page fault handler reports.
-
-    // new
-    // let ptr = 0xdeadbeaf as *mut u32;
-    // unsafe { *ptr = 42; }
-
-    let ptr = 0x207623 as *mut u32;
-
-    // read from a code page
-    unsafe { let _x = *ptr; }
-    println!("read worked");
-
-    // write to a code page
-    unsafe { *ptr = 42; }
-    println!("write worked");
+    blog_os::init(); // new
 
     // #[allow(unconditional_recursion)]
     // fn stack_overflow() {
