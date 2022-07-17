@@ -7,7 +7,7 @@
 
 extern crate alloc;
 
-use blog_os::task::{Task, keyboard, executor::Executor};
+use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
 
 use core::panic::PanicInfo;
 use bootloader::{BootInfo, entry_point};
@@ -33,27 +33,31 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // new
     allocator::init_heap(&mut mapper, &mut frame_allocator)
         .expect("heap initialization failed");
+
+    // allocate a number on the heap
+    let heap_value = Box::new(41);
+    println!("heap_value at {:p}", heap_value);
+
+    // create a dynamically sized vector
+    let mut vec = Vec::new();
+    for i in 0..500 {
+        vec.push(i);
+    }
+    println!("vec at {:p}", vec.as_slice());
+
+    // create a reference counted vector -> will be freed when count reaches 0
+    let reference_counted = Rc::new(vec![1, 2, 3]);
+    let cloned_reference = reference_counted.clone();
+    println!("current reference count is {}", Rc::strong_count(&cloned_reference));
+    core::mem::drop(reference_counted);
+    println!("reference count is {} now", Rc::strong_count(&cloned_reference));
     
     // as before
     #[cfg(test)]
     test_main();
 
-    let mut executor = Executor::new(); // new
-    executor.spawn(Task::new(example_task()));
-    executor.spawn(Task::new(keyboard::print_keypresses())); // new
-    executor.run();
-
-    // println!("It did not crash!");
-    // blog_os::hlt_loop();
-}
-
-async fn async_number() -> u32 {
-    42
-}
-
-async fn example_task() {
-    let number = async_number().await;
-    println!("async number: {}", number);
+    println!("It did not crash!");
+    blog_os::hlt_loop();
 }
 
 pub trait Testable {
